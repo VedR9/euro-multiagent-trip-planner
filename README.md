@@ -18,6 +18,10 @@ Plan a Europe trip via **voice** (Whisper transcription) or **text**, powered by
 - **Country → city expansion**: if a user says a country like **Switzerland**, the planner expands it to major cities (e.g. **Zurich, Lucerne, Interlaken, Geneva**) so outputs are city-level and not generic.
 - **Rate-limit resilience**: if Groq/Gemini rate limits occur, the backend falls back to using **live search titles** and/or a deterministic itinerary so responses stay specific and structured.
 
+
+https://github.com/user-attachments/assets/3548a49f-907c-449b-85b1-92411e031030
+
+
 ## Architecture
 
 See `docs/architecture.md` for the full system design.
