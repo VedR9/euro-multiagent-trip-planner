@@ -1,44 +1,62 @@
-## Euro Multi-Agent Voice Trip Planner
+## Euro Multi-Agent Voice Trip Planner 🎙️✈️
 
-Plan a Europe trip via **voice** (Whisper transcription) or **text**, powered by a **multi-agent backend**.
+An AI-powered **voice + chat** trip planner that orchestrates multiple agents to build a detailed, city-level itinerary for Europe.
 
-- **Live demo**: `euro-multiagent-trip-planner.vercel.app` (Vercel)
-- **Backend**: `backend/` (FastAPI + multi-agent planner)
-- **Frontend**: `frontend/` (Next.js voice + chat UI)
+`https://euro-multiagent-trip-planner.vercel.app/`
 
-### What makes it “multi-agent”
-- **Profiler**: extracts destinations/budget/duration/preferences
-- **Researcher**: finds real attractions via live search (Tavily MCP)
-- **Logistics**: suggests accommodation options via live search
-- **Reviewer**: assembles a final itinerary + audio summary (and validates vs budget)
+## Overview
+
+This project helps users plan a trip to Europe by:
+- recording voice (browser mic),
+- transcribing it (Whisper via Groq),
+- researching real attractions/hotels (Tavily MCP),
+- compiling a polished itinerary + audio summary (Reviewer).
 
 ### Key behaviors
 - **Greeting handling**: inputs like `hi`, `hello,`, `bye`, `thanks` return:  
-  “How can I help you? Is there anything I can suggest you to plan your trip with?”
+  **“How can I help you? Is there anything I can suggest you to plan your trip with?”**
 - **Country → city expansion**: if a user says a country like **Switzerland**, the planner expands it to major cities (e.g. **Zurich, Lucerne, Interlaken, Geneva**) so outputs are city-level and not generic.
 - **Rate-limit resilience**: if Groq/Gemini rate limits occur, the backend falls back to using **live search titles** and/or a deterministic itinerary so responses stay specific and structured.
 
+Demo video (GitHub attachment):
+`https://github.com/user-attachments/assets/3548a49f-907c-449b-85b1-92411e031030`
 
-https://github.com/user-attachments/assets/3548a49f-907c-449b-85b1-92411e031030
+## ✨ Key Features
+- **Voice-first UX**: one-tap mic recording → transcription → itinerary.
+- **Multi-agent planning pipeline**:
+  - **Profiler**: extracts destinations, duration, budget, preferences.
+  - **Researcher**: finds specific attractions using live search.
+  - **Logistics**: suggests hotels and basic cost estimates.
+  - **Reviewer**: validates and formats the final plan.
+- **Smalltalk handling**: `hi`, `hi,`, `bye`, `thanks` →  
+  **“How can I help you? Is there anything I can suggest you to plan your trip with?”**
+- **Country → city expansion**: e.g. **Switzerland → Zurich, Lucerne, Interlaken, Geneva** (prevents “generic country-only” itineraries).
+- **Rate-limit resilience**: if Groq/Gemini rate limits occur, the backend falls back to:
+  - using **live search result titles** directly, and/or
+  - a deterministic itinerary generator (so you still get structured output).
 
+## ⚙️ Architecture & Data Flow
 
-## Architecture
+Full diagram + details: `docs/architecture.md`
 
-See `docs/architecture.md` for the full system design.
+High-level flow:
+1. **Frontend (`frontend/`)** captures voice, calls backend endpoints.
+2. **Backend API (`backend/`)**:
+   - `POST /api/transcribe` → Groq Whisper transcription
+   - `POST /api/plan` → Orchestrator runs the agent pipeline
+3. **Orchestrator** coordinates:
+   - Profiler → Researcher → Logistics → Reviewer
+4. **Shared State (`SharedState`)** carries the structured trip profile, candidate activities, hotels, and final output.
 
-At a high level:
-- `OrchestratorAgent` coordinates the workflow
-- A shared `SharedState` object carries profile + candidate activities + hotels + final output
-
-## Local Setup
+## Local Setup & Execution
 
 ### Prerequisites
 - **Node.js**: recommended **20+**
 - **Python**: **3.11+**
 - API keys:
-  - `GROQ_API_KEY` (LLM + Whisper transcription)
-  - `GEMINI_API_KEY` (Reviewer itinerary drafting)
-  - `TAVILY_API_KEY` (live search via Tavily MCP)
+  - `GROQ_API_KEY`
+  - `GEMINI_API_KEY`
+  - `TAVILY_API_KEY`
 
 ### Backend (FastAPI)
 
@@ -54,10 +72,6 @@ export TAVILY_API_KEY="..."
 cd backend
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
-
-Endpoints:
-- `POST /api/transcribe`
-- `POST /api/plan`
 
 ### Frontend (Next.js)
 
@@ -107,5 +121,5 @@ If you still see generic output, check quotas and verify `TAVILY_API_KEY` is set
 
 ---
 
-For more details, also see `frontend/README.md`.
+More details (frontend-focused): `frontend/README.md`
 
