@@ -44,17 +44,16 @@ Example Output:
 """
         
         try:
-            from groq import Groq
+            from google import genai
             import os
-            client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+            client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
             
-            response = client.chat.completions.create(
-                model='llama-3.3-70b-versatile',
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.3
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt,
             )
             
-            json_output = response.choices[0].message.content.strip()
+            json_output = response.text.strip()
             if json_output.startswith("```json"): json_output = json_output[7:-3]
             elif json_output.startswith("```"): json_output = json_output[3:-3]
             

@@ -20,8 +20,8 @@ Budgets should be considered in Euros (EUR) or GBP.
 
 Extract the following into a valid JSON object:
 - destinations (list of strings): Which European cities do they want to visit?
-- budget (float): What is their total budget?
-- duration_days (int): How many days?
+- budget (float): What is their total budget? (Use 0.0 if not explicitly mentioned)
+- duration_days (int): How many days? (Use 1 if not explicitly mentioned)
 - preferences (list of strings): e.g., ['food', 'temples', 'history']
 - constraints (list of strings): e.g., ['hate crowds', 'wheelchair accessible']
 
@@ -31,7 +31,9 @@ Output ONLY the JSON object. Do not wrap in markdown tags."""
             system_message += f"\n\nHere is the user's EXISTING trip profile:\n{state.profile.model_dump_json()}\n\nThe user wants to modify their trip based on this new request: '{state.original_prompt}'. Return the full, updated JSON profile."
         
         try:
-            response = self.client.chat.completions.create(
+            from groq import Groq
+            client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+            response = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=[
                     {"role": "system", "content": system_message},
