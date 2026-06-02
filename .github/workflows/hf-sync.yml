@@ -37,6 +37,18 @@ jobs:
           # Copy the contents of the backend directory into the space
           cp -r ../backend/* .
           
+          # Recreate the Hugging Face configuration README.md
+          cat << 'EOF' > README.md
+---
+title: Euro Voice Agent Backend
+emoji: 🌍
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+---
+EOF
+          
           # Commit and push
           git add .
           git commit -m "Sync backend from GitHub: ${{ github.sha }}" || echo "No changes to commit"
