@@ -6,6 +6,7 @@ import tempfile
 from dotenv import load_dotenv
 from src.agents.orchestrator import OrchestratorAgent
 import groq
+import re
 
 load_dotenv()
 
@@ -26,11 +27,61 @@ class PlanRequest(BaseModel):
 
 sessions = {}
 
+_SMALLTALK_FALLBACK_PROMPT = (
+    "How can I help you? Is there anything I can suggest you to plan your trip with?"
+)
+
+def _normalize_user_text(text: str) -> str:
+    # Keep only letters/numbers/spaces so "hi," -> "hi"
+    cleaned = re.sub(r"[^a-z0-9\s]+", " ", (text or "").lower()).strip()
+    cleaned = re.sub(r"\s+", " ", cleaned)
+    return cleaned
+
+def _is_greeting_or_farewell(text: str) -> bool:
+    t = _normalize_user_text(text)
+    if not t:
+        return False
+
+    # Single-token greetings/farewells (and common short variants)
+    single = {
+        "hi",
+        "hey",
+        "hello",
+        "yo",
+        "hiya",
+        "sup",
+        "bye",
+        "goodbye",
+        "cya",
+        "thanks",
+        "thank you",
+        "thx",
+    }
+    if t in single:
+        return True
+
+    # Short multi-word variants
+    multi_prefixes = (
+        "good morning",
+        "good afternoon",
+        "good evening",
+        "see you",
+        "see ya",
+        "talk later",
+        "talk to you later",
+        "thank you",
+    )
+    return any(t == p for p in multi_prefixes)
+
 @app.post("/api/plan")
 async def create_plan(request: PlanRequest):
     """Generates the trip plan using the multi-agent system."""
     if not request.prompt.strip():
         raise HTTPException(status_code=400, detail="Prompt cannot be empty")
+
+    # Handle smalltalk (hi/bye/thanks) without invoking the full pipeline
+    if _is_greeting_or_farewell(request.prompt):
+        return {"success": True, "data": _SMALLTALK_FALLBACK_PROMPT}
         
     try:
         # Retrieve existing state if session_id is provided
