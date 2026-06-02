@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Multi-Agent Voice Trip Planner",
+  title: "Euro - Voice Trip Planner",
   description: "AI-powered Travel Planner Orchestrated by Multiple Agents",
 };
 

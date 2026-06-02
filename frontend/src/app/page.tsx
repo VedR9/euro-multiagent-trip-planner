@@ -111,6 +111,10 @@ export default function LandingPage() {
       });
       const planData = await res.json();
       
+      if (!res.ok) {
+        throw new Error(planData.detail || "Server error occurred");
+      }
+
       try {
         const parsedData = JSON.parse(planData.data);
         setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "ai", content: parsedData.markdown_itinerary }]);
@@ -118,9 +122,9 @@ export default function LandingPage() {
       } catch (e) {
         setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "ai", content: planData.data }]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Planning error:", error);
-      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "ai", content: "Error generating itinerary. Check if the back-end is running." }]);
+      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "ai", content: `❌ Error generating itinerary: ${error.message || "Please check the backend."}` }]);
     } finally {
       setIsProcessing(false);
     }
@@ -181,7 +185,7 @@ export default function LandingPage() {
           <div className="w-8 h-8 bg-purple-600 rounded-bl-xl rounded-tr-xl flex items-center justify-center rotate-45 shadow-[0_0_15px_rgba(139,92,246,0.5)]">
             <div className="-rotate-45 font-bold text-white tracking-widest text-lg"></div>
           </div>
-          <span className="font-bold text-xl tracking-wide text-white">Multi-Agent Voice Trip Planner</span>
+          <span className="font-bold text-xl tracking-wide text-white">Euro - Voice Trip Planner</span>
         </div>
         <nav className="hidden md:flex items-center gap-10 text-sm font-medium text-gray-200">
           <a href="#" className="hover:text-white transition-colors border-b-2 border-transparent hover:border-purple-500 pb-1">Home</a>
@@ -212,8 +216,8 @@ export default function LandingPage() {
               transition={{ duration: 0.8 }}
               className="text-4xl md:text-6xl font-bold text-center leading-tight mb-12 drop-shadow-2xl print:hidden"
             >
-              Multi-Agent Voice Trip Planner <br/>
-              <span className="text-2xl md:text-4xl mt-2 block text-gray-300">Orchestrating your dream trip with AI.</span>
+              Euro - Voice Trip Planner <br/>
+              <span className="text-2xl md:text-4xl mt-2 block text-gray-300">Orchestrating your dream trip with Multi-Agent AI</span>
             </motion.h1>
 
             {/* Big Microphone Action Button */}
