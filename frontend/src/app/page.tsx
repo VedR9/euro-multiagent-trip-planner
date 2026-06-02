@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Mic, Loader2, Compass, Printer, Volume2, VolumeX, RefreshCcw } from "lucide-react";
+import { Mic, Loader2, Compass, Printer, VolumeX, RefreshCcw } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
@@ -37,7 +37,7 @@ export default function LandingPage() {
       setLoadingStepIndex(0);
     }
     return () => clearInterval(interval);
-  }, [isProcessing]);
+  }, [isProcessing, loadingSteps.length]);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -119,12 +119,13 @@ export default function LandingPage() {
         const parsedData = JSON.parse(planData.data);
         setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "ai", content: parsedData.markdown_itinerary }]);
         speakSummary(parsedData.audio_summary);
-      } catch (e) {
+      } catch {
         setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "ai", content: planData.data }]);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Planning error:", error);
-      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "ai", content: `❌ Error generating itinerary: ${error.message || "Please check the backend."}` }]);
+      const errorMessage = error instanceof Error ? error.message : "Please check the backend.";
+      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "ai", content: `❌ Error generating itinerary: ${errorMessage}` }]);
     } finally {
       setIsProcessing(false);
     }
@@ -166,6 +167,7 @@ export default function LandingPage() {
       
       {/* Global Fixed Background Image */}
       <div className="fixed inset-0 z-0 pointer-events-none">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img 
           src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?q=80&w=2020&auto=format&fit=crop"  
           alt="Paris Europe" 
@@ -307,14 +309,14 @@ export default function LandingPage() {
                 <div className="flex flex-col gap-4 overflow-y-auto max-h-[50vh] pr-2 scrollbar-thin">
                   <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Your Requests</h3>
                   <AnimatePresence>
-                    {messages.filter(m => m.role === "user").map((msg, index) => (
+                    {messages.filter(m => m.role === "user").map((msg) => (
                       <motion.div 
                         key={msg.id}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         className="bg-[#222] p-4 rounded-2xl border border-[#333] shadow-md"
                       >
-                        <p className="text-md text-gray-200 italic">"{msg.content}"</p>
+                        <p className="text-md text-gray-200 italic">&quot;{msg.content}&quot;</p>
                       </motion.div>
                     ))}
                   </AnimatePresence>
