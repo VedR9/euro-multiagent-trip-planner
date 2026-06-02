@@ -1,9 +1,47 @@
 import json
 import os
+import re
 from groq import Groq
 from pydantic import ValidationError
 from tenacity import retry, stop_after_attempt, wait_exponential
 from src.state import SharedState, TravelProfile
+
+_COUNTRY_TO_CITIES = {
+    # Keep this intentionally small and high-signal; we can extend as needed.
+    "switzerland": ["Zurich", "Lucerne", "Interlaken", "Geneva"],
+    "france": ["Paris", "Nice", "Lyon"],
+    "italy": ["Rome", "Florence", "Venice"],
+    "spain": ["Barcelona", "Madrid", "Seville"],
+    "germany": ["Berlin", "Munich", "Hamburg"],
+    "austria": ["Vienna", "Salzburg", "Innsbruck"],
+    "netherlands": ["Amsterdam", "Rotterdam", "Utrecht"],
+}
+
+def _normalize_place(s: str) -> str:
+    s = (s or "").strip()
+    s = re.sub(r"\s+", " ", s)
+    return s
+
+def _expand_countries_to_cities(destinations: list[str]) -> list[str]:
+    expanded: list[str] = []
+    for d in destinations or []:
+        key = _normalize_place(d).lower()
+        if key in _COUNTRY_TO_CITIES:
+            expanded.extend(_COUNTRY_TO_CITIES[key])
+        else:
+            expanded.append(_normalize_place(d))
+    # de-dupe while preserving order
+    seen = set()
+    out: list[str] = []
+    for d in expanded:
+        if not d:
+            continue
+        k = d.lower()
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append(d)
+    return out
 
 class ProfilerAgent:
     def __init__(self):
@@ -50,6 +88,8 @@ Output ONLY the JSON object. Do not wrap in markdown tags."""
                 json_output = json_output[:-3]
                 
             parsed_profile = TravelProfile.model_validate_json(json_output.strip())
+            # If the model returns countries (e.g., "Switzerland"), expand to major cities
+            parsed_profile.destinations = _expand_countries_to_cities(parsed_profile.destinations)
             state.profile = parsed_profile
             print("ProfilerAgent: Successfully extracted European profile.")
         except ValidationError as e:

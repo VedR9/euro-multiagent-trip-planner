@@ -3,10 +3,71 @@ import json
 from tenacity import retry, stop_after_attempt, wait_exponential
 from src.state import SharedState
 from groq import Groq
+from datetime import date
 
 class ReviewerAgent:
     def __init__(self):
         self.client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+    def _deterministic_fallback(self, state: SharedState) -> str:
+        profile = state.profile
+        destinations = profile.destinations if profile else []
+        days = profile.duration_days if profile else 0
+        budget = profile.budget if profile else 0.0
+
+        activities = state.candidate_activities or []
+        hotels = state.accommodations or []
+
+        # Simple cost estimate from our structured data
+        activity_cost = sum(float(a.estimated_cost or 0.0) for a in activities)
+        hotel_cost = sum(float(h.total_cost or 0.0) for h in hotels)
+        total_cost = activity_cost + hotel_cost
+
+        lines: list[str] = []
+        lines.append("# Your AI-Crafted Itinerary")
+        lines.append("")
+        lines.append(f"## Trip Overview ({date.today().isoformat()})")
+        lines.append(f"- **Destinations**: {', '.join(destinations) if destinations else 'Europe'}")
+        lines.append(f"- **Duration**: {days} days" if days else "- **Duration**: (unspecified)")
+        lines.append(f"- **Budget**: €{budget:.2f}")
+        lines.append(f"- **Estimated costs (activities + accommodation only)**: €{total_cost:.2f}")
+        lines.append("")
+
+        if hotels:
+            lines.append("## Accommodation")
+            for h in hotels:
+                lines.append(f"- **{h.name}** ({h.neighborhood}) — ~€{h.cost_per_night:.0f}/night, ~€{h.total_cost:.0f} total")
+            lines.append("")
+
+        if activities:
+            lines.append("## Top Attractions (suggested)")
+            for a in activities[:12]:
+                cost = f"€{a.estimated_cost:.0f}" if (a.estimated_cost is not None) else "€0"
+                lines.append(f"- **{a.name}** ({a.location}) — {cost}, ~{a.duration_hours}h")
+            lines.append("")
+
+        # Day-by-day: allocate activities evenly across days
+        if days and days > 0:
+            lines.append("## Day-by-Day Plan")
+            per_day = max(1, len(activities) // days) if activities else 0
+            idx = 0
+            for d in range(1, days + 1):
+                lines.append(f"### Day {d}")
+                if idx < len(activities):
+                    day_acts = activities[idx: idx + per_day]
+                    idx += per_day
+                    for a in day_acts:
+                        lines.append(f"- Visit **{a.name}**")
+                else:
+                    lines.append("- Flexible day: explore neighborhoods, cafés, and parks at your own pace.")
+                lines.append("")
+
+        audio = (
+            f"Your {days}-day Swiss-style European trip is ready! "
+            f"You’ll visit {', '.join(destinations[:3])}{' and more' if len(destinations) > 3 else ''} with hand-picked sights. "
+            f"Want me to optimize it by pace, kids-friendly stops, or food preferences?"
+        )
+        return json.dumps({"audio_summary": audio, "markdown_itinerary": "\n".join(lines)})
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     def execute(self, state: SharedState) -> SharedState:
@@ -62,6 +123,7 @@ Example Output:
             print(f"ReviewerAgent: Successfully drafted European itinerary/feedback.")
         except Exception as e:
             print(f"ReviewerAgent Error: {e}")
-            state.final_itinerary = "Error generating itinerary."
+            # Fallback: produce a structured itinerary from known data so we don't return generic placeholders
+            state.final_itinerary = self._deterministic_fallback(state)
             
         return state
