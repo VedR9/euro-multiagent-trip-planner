@@ -13,7 +13,7 @@ Plan a Europe trip via **voice** (Whisper transcription) or **text**, powered by
 - **Reviewer**: assembles a final itinerary + audio summary (and validates vs budget)
 
 ### Key behaviors
-- **Smalltalk handling**: inputs like `hi`, `hi,`, `bye`, `thanks` return:  
+- **Greeting handling**: inputs like `hi`, `hello,`, `bye`, `thanks` return:  
   “How can I help you? Is there anything I can suggest you to plan your trip with?”
 - **Country → city expansion**: if a user says a country like **Switzerland**, the planner expands it to major cities (e.g. **Zurich, Lucerne, Interlaken, Geneva**) so outputs are city-level and not generic.
 - **Rate-limit resilience**: if Groq/Gemini rate limits occur, the backend falls back to using **live search titles** and/or a deterministic itinerary so responses stay specific and structured.
