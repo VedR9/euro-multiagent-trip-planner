@@ -18,8 +18,13 @@ This project helps users plan a trip to Europe by:
 - **Country → city expansion**: if a user says a country like **Switzerland**, the planner expands it to major cities (e.g. **Zurich, Lucerne, Interlaken, Geneva**) so outputs are city-level and not generic.
 - **Rate-limit resilience**: if Groq/Gemini rate limits occur, the backend falls back to using **live search titles** and/or a deterministic itinerary so responses stay specific and structured.
 
-Demo video (GitHub attachment):
-`https://github.com/user-attachments/assets/3548a49f-907c-449b-85b1-92411e031030`
+Demo video:
+
+
+
+https://github.com/user-attachments/assets/75e1441e-7478-4fee-ad91-67097e528605
+
+
 
 ## ✨ Key Features
 - **Voice-first UX**: one-tap mic recording → transcription → itinerary.
