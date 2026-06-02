@@ -38,16 +38,7 @@ jobs:
           cp -r ../backend/* .
           
           # Recreate the Hugging Face configuration README.md
-          cat << 'EOF' > README.md
----
-title: Euro Voice Agent Backend
-emoji: 🌍
-colorFrom: blue
-colorTo: purple
-sdk: docker
-pinned: false
----
-EOF
+          echo -e "---\ntitle: Euro Voice Agent Backend\nemoji: 🌍\ncolorFrom: blue\ncolorTo: purple\nsdk: docker\npinned: false\n---" > README.md
           
           # Commit and push
           git add .
