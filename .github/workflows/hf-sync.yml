@@ -21,7 +21,7 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           # Replace 'username/space-name' with your actual Hugging Face Space name
-          HF_SPACE: 'your-username/your-space-name'
+          HF_SPACE: 'vedR9/euro_voice_agent_backend'
         run: |
           # Configure Git
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
