@@ -1,0 +1,11 @@
+pydantic
+openai
+python-dotenv
+requests
+groq
+google-genai
+tenacity
+mcp
+fastapi
+uvicorn
+python-multipart

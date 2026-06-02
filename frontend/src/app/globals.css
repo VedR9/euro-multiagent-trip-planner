@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #121212;
+  --foreground: #ffffff;
+  --primary: #8B5CF6;
+  --primary-hover: #7C3AED;
+  --card-bg: #1A1A1A;
+  --card-border: #333333;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-inter), sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--card-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.mic-pulse {
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(139, 92, 246, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+}
+
+/* Markdown Styles */
+.prose {
+  color: #E5E7EB !important;
+}
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  color: #ffffff !important;
+}
+.prose strong {
+  color: #8B5CF6 !important;
+}
+.prose a {
+  color: #A78BFA !important;
+}
+.prose hr {
+  border-color: #333333 !important;
+}
+
+/* Print Overrides */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .prose {
+    color: black !important;
+  }
+  .prose h1, .prose h2, .prose h3, .prose h4, .prose p, .prose li, .prose strong {
+    color: black !important;
+  }
+  .prose a {
+    color: #4F46E5 !important;
+    text-decoration: underline;
+  }
+  .prose hr {
+    border-color: #E5E7EB !important;
+  }
+}
