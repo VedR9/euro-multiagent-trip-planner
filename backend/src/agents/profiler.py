@@ -20,7 +20,7 @@ Budgets should be considered in Euros (EUR) or GBP.
 
 Extract the following into a valid JSON object:
 - destinations (list of strings): Which European cities do they want to visit?
-- budget (float): What is their total budget? (Use 0.0 if not explicitly mentioned)
+- budget (float): What is their total budget? (Use 5000.0 if not explicitly mentioned)
 - duration_days (int): How many days? (Use 1 if not explicitly mentioned)
 - preferences (list of strings): e.g., ['food', 'temples', 'history']
 - constraints (list of strings): e.g., ['hate crowds', 'wheelchair accessible']

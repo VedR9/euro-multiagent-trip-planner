@@ -34,7 +34,7 @@ Accommodations: {[a.model_dump_json() for a in state.accommodations]}
 OUTPUT INSTRUCTIONS:
 You must return ONLY a raw JSON object (do not wrap in markdown code blocks) with EXACTLY two keys:
 1. "audio_summary": A punchy, 2-3 sentence conversational summary of the trip. This will be spoken out loud by a text-to-speech engine to the user. It should be exciting and specifically mention Europe.
-2. "markdown_itinerary": The full, detailed markdown itinerary. If the total cost exceeds the budget, or if the budget is 0, start the markdown with "### Validation Failed" and explain why. Otherwise, provide a beautiful day-by-day European itinerary.
+2. "markdown_itinerary": The full, detailed markdown itinerary. If the total cost explicitly exceeds the budget, start the markdown with "### Validation Failed" and explain why. Otherwise, provide a beautiful day-by-day European itinerary.
 
 Example Output:
 {{
